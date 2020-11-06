@@ -38,6 +38,10 @@ Channel.fromFilePairs(params.dir+"/*_{1,2}.fastq.gz").set{fastqChannel}
 process run_bwa {
     /*
     Process to run the BWA read mapper
+
+    Returns
+    -------
+    A BAM file with the aligned reads
     */
 
     memory '5 GB'
@@ -50,10 +54,10 @@ process run_bwa {
         set runId, file(reads) from fastqChannel
     
     output:
-        file "${runId}.sam" into out_sam
+        file "${runId}.bam" into out_bam
 
     script:
     """
-    bwa mem ${params.ref} ${reads} -o ${runId}.sam
+    bwa mem ${params.ref} ${reads} |samtools view -b -o ${runId}.bam
     """
 }
