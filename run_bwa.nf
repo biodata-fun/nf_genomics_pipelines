@@ -27,6 +27,7 @@ if (params.help) {
     log.info '	--help	Show this message and exit.'
     log.info '	--dir DIR    Path to the dir containing the FASTQ file pairs to be aligned.'
     log.info '  --ref REF_FILE  Path to the reference FASTA file'
+    log.info '  --outformat'
     log.info ''
     exit 1
 }
