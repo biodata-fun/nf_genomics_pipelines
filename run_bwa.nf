@@ -17,17 +17,17 @@ params.queue = 'production-rh74'
 //print usage
 if (params.help) {
     log.info ''
-    log.info 'Pipeline to run BWA from FASTQ file/s'
+    log.info 'Pipeline to run BWA on FASTQ file/s'
     log.info '-------------------------------------'
     log.info ''
     log.info 'Usage: '
-    log.info '    nextflow run_bwa.nf --dir DIR --ref REF_FILE'
+    log.info '    nextflow run_bwa.nf --dir DIR --ref REF_FILE --format BAM'
     log.info ''
     log.info 'Options:'
     log.info '	--help	Show this message and exit.'
     log.info '	--dir DIR    Path to the dir containing the FASTQ file pairs to be aligned.'
-    log.info '  --ref REF_FILE  Path to the reference FASTA file'
-    log.info '  --outformat'
+    log.info '  --ref REF_FILE  Path to the reference FASTA file.'
+    log.info '  --format FMT Output format sam, bam, cram.'
     log.info ''
     exit 1
 }
@@ -52,13 +52,23 @@ process run_bwa {
     publishDir "alignments/", mode: 'copy', overwrite: true
 
     input:
-        set runId, file(reads) from fastqChannel
+        set val(runId), file(reads) from fastqChannel
     
     output:
-        file "${runId}.bam" into out_bam
+        file "${runId}.${params.format}"
+
 
     script:
+    if (params.format == 'sam')
     """
-    bwa mem ${params.ref} ${reads} |samtools view -b -o ${runId}.bam
+    bwa mem ${params.ref} ${reads} -o ${runId}.${params.format}
+    """
+    else if (params.format == 'bam')
+    """
+    bwa mem ${params.ref} ${reads} |samtools view -b -o ${runId}.${params.format}
+    """
+    else if (params.format == 'cram')
+    """
+    bwa mem ${params.ref} ${reads} |samtools view -C -T ${params.ref} > ${runId}.${params.format}
     """
 }
