@@ -10,7 +10,6 @@
 
  // params defaults
 params.help = false
-params.threads = 1
 params.queue = 'production-rh74'
 
 //print usage
