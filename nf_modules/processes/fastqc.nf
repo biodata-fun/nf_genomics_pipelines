@@ -21,12 +21,12 @@ process FASTQC {
     executor 'local'
 
     input:
-      tuple val(sampleId), file(reads)
-    
+      tuple val(sampleId), file(R1), file(R2)
+
     //output:
     //path 'out.bcftoolsnorm.vcf.gz'
     script:
     """
-    echo fastqc --sample $sampleId --reads $reads 
+    echo fastqc --sample $sampleId --reads $R1 $R2
     """
 }

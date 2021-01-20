@@ -1,6 +1,5 @@
 /*
- *  Module containing processes for executing the different
- *  bcftools commands on a VCF
+ *  Module containing processes for running Bowtie2
  *
  * This module relies on Nextflow (see https://www.nextflow.io/tags/workflow.html)
  *
@@ -21,14 +20,14 @@ process RUN_BOWTIE {
     executor 'local'
 
     input:
-      tuple val(sampleId), file(reads)
-      val(reference)
+        tuple val(sampleId), file(R1), file(R2)
+        val(reference)
 
-//    output:
-//    path 'out.bcftoolsnorm.vcf.gz'
+    output:
+    path "${sampleId}.bam"
 
     script:
     """
-    echo bowtie2 -x $reference -1 $reads[0] 
+    bowtie2 -x $reference -1 $R1 -2 $R2 | samtools view -bS - > ${sampleId}.bam
     """
 }

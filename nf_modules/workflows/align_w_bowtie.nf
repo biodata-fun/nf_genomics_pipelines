@@ -12,6 +12,7 @@ nextflow.enable.dsl=2
 
 include { FASTQC } from '../processes/fastqc.nf' 
 include { RUN_BOWTIE } from '../processes/alignment/bowtie.nf'
+include { RUN_SAMTOOLS_MERGE } from '../processes/samtools.nf'
 //include { SAVE_FILE } from '../processes/utils.nf'
 
 
@@ -40,10 +41,16 @@ if (params.help) {
 log.info 'Starting alignment.....'
 
 workflow  {
-    samples_ch = Channel.fromFilePairs(params.dir+"*_R{1,2}*.fastq.gz")
+
+    Channel
+    .fromFilePairs(params.dir+"*_R{1,2}*.fastq.gz", 
+    flat:true, 
+    checkIfExists:true)
+    .set { f_ch}
+
     main:
-        FASTQC( samples_ch)
-        RUN_BOWTIE( samples_ch, params.ref)
+        FASTQC( f_ch)
+        RUN_BOWTIE( f_ch, params.ref)
 //     SELECT_VARIANTS(ALLELIC_PRIMITIVES.out, params.vt, params.threads)
    //     RUN_BCFTOOLS_SORT(SELECT_VARIANTS.out)
    //     RUN_VT_UNIQ(RUN_BCFTOOLS_SORT.out)
