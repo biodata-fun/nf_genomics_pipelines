@@ -17,8 +17,6 @@ process RUN_BOWTIE {
     Path to BAM with alignments
     */
 
-    executor 'local'
-
     input:
         tuple val(sampleId), file(R1), file(R2)
         val(reference)

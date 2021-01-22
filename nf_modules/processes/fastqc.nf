@@ -18,15 +18,17 @@ process FASTQC {
     Path to splitted VCF
     */
 
+    publishDir "results/", mode: 'move', overwrite: true
     executor 'local'
 
     input:
       tuple val(sampleId), file(R1), file(R2)
 
-    //output:
-    //path 'out.bcftoolsnorm.vcf.gz'
+    output:
+    file "${sampleId}*"
+    
     script:
     """
-    echo fastqc --sample $sampleId --reads $R1 $R2
+    fastqc $R1 $R2
     """
 }

@@ -8,26 +8,45 @@
  *
  */
 
-process RUN_SAMTOOLS_MERGE {
+process RUN_SAMTOOLS_SORT {
     /*
-    This process will align a pair of FASTQ using Bowtie2
+    This process will sort an alignment file
 
     Returns
     -------
-    Path to BAM with alignments
+    Path to sorted BAM file
     */
 
-    executor 'local'
-
     input:
-        tuple val(sampleId), file(R1), file(R2)
-        val(reference)
+    path bam_file
 
     output:
-    path "${sampleId}.bam"
+        path "${bam_file.baseName}.sorted.bam"
 
     script:
     """
-    bowtie2 -x $reference -1 $R1 -2 $R2 | samtools view -bS - > ${sampleId}.bam
+    samtools sort ${bam_file} -O BAM -o ${bam_file.baseName}.sorted.bam
+    """
+}
+
+process RUN_SAMTOOLS_MERGE {
+    /*
+    This process will run samtools merge
+    to merge multiple sorted BAM files
+
+    Returns
+    -------
+    Path to merged BAM file
+    */
+
+    input:
+        path bams
+
+    output:
+    path "out.merged.bam"
+
+    script:
+    """
+    samtools merge out.merged.bam ${bams} -O BAM
     """
 }

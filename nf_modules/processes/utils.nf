@@ -7,18 +7,19 @@ process SAVE_FILE {
     Path to splitted VCF
     */
     
-    publishDir "results/", mode: 'copy', overwrite: true
+    publishDir "results/", mode: 'move', overwrite: true
 
     executor 'local'
 
     input:
-	path(vcf)
-    val(vt)
+	path(afile)
+    val(prefix)
 
     output:
-    path "out.norm.${vt}.vcf.gz"
+    path "${prefix}.merged.bam"
 
     """
-    mv $vcf out.norm.${vt}.vcf.gz
+    echo $afile $prefix
+    mv ${afile} ${prefix}.merged.bam
     """
 }
