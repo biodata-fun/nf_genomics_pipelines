@@ -12,8 +12,9 @@ nextflow.enable.dsl=2
 
 include { FASTQC } from '../processes/fastqc.nf' 
 include { RUN_BOWTIE } from '../processes/alignment/bowtie.nf'
-include { RUN_SAMTOOLS_SORT } from '../processes/samtools.nf'
-include { RUN_SAMTOOLS_MERGE } from '../processes/samtools.nf'
+include { RUN_SAMTOOLS_SORT; RUN_SAMTOOLS_MERGE} from '../processes/samtools.nf'
+include { RUN_SAMTOOLS_FLAGSTAT } from '../processes/samtools.nf'
+include { RUN_SAMTOOLS_FLAGSTAT as SAMTOOLS_FLAGSTAT_MERGED} from '../processes/samtools.nf'
 include { SAVE_FILE } from '../processes/utils.nf'
 
 
@@ -53,6 +54,7 @@ workflow  {
     main:
         FASTQC( f_ch)
         RUN_BOWTIE( f_ch, params.ref)
+        RUN_SAMTOOLS_FLAGSTAT(RUN_BOWTIE.out)
         RUN_SAMTOOLS_SORT(RUN_BOWTIE.out)
         all_sorted_bams = RUN_SAMTOOLS_SORT.out.collect()
         RUN_SAMTOOLS_MERGE(all_sorted_bams)

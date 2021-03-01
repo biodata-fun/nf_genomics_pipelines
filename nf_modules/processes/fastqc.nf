@@ -19,7 +19,6 @@ process FASTQC {
     */
 
     publishDir "results/", mode: 'move', overwrite: true
-    executor 'local'
 
     input:
       tuple val(sampleId), file(R1), file(R2)

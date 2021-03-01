@@ -29,6 +29,29 @@ process RUN_SAMTOOLS_SORT {
     """
 }
 
+process RUN_SAMTOOLS_FLAGSTAT {
+    /*
+    This process will run samtools flagstat
+    on a file
+
+    Returns
+    -------
+    Path to text file with flagstat report
+    */
+    publishDir "results_QC/", mode: 'move', overwrite: true
+
+    input:
+        path bam_file
+
+    output:
+    path "${bam_file.baseName}.flagstat.txt"
+
+    script:
+    """
+    samtools flagstat ${bam_file} > ${bam_file.baseName}.flagstat.txt
+    """
+}
+
 process RUN_SAMTOOLS_MERGE {
     /*
     This process will run samtools merge
@@ -40,7 +63,7 @@ process RUN_SAMTOOLS_MERGE {
     */
 
     input:
-        path bams
+    path bams
 
     output:
     path "out.merged.bam"
