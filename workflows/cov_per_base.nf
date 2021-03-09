@@ -1,5 +1,5 @@
 /* 
- * Workflow to Calculate the coverage per base on sample/s
+ * Workflow to calculate the coverage per base from multiple alignment files
  *
  * This workflow relies on Nextflow (see https://www.nextflow.io/tags/workflow.html)
  *
@@ -16,8 +16,8 @@ params.region = false
 //print usage
 if (params.help) {
     log.info ''
-    log.info 'Pipeline to Calculate coverage per base for sample/s'
-    log.info '----------------------------------------------------'
+    log.info 'Pipeline to calculate the coverage per base for multiple alignment files'
+    log.info '------------------------------------------------------------------------'
     log.info ''
     log.info 'Usage: '
     log.info '    nextflow -C cov_per_base.config run cov_per_base.nf --file <aln_paths.txt> --genome <genome.txt> --window <int>'
