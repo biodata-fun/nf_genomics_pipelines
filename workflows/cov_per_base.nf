@@ -20,15 +20,18 @@ if (params.help) {
     log.info '----------------------------------------------------'
     log.info ''
     log.info 'Usage: '
-    log.info '    nextflow cov_per_sample.nf --file aln_paths.txt'
+    log.info '    nextflow -C cov_per_base.config run cov_per_base.nf --file <aln_paths.txt> --genome <genome.txt> --window <int>'
     log.info ''
     log.info 'Options:'
     log.info '    --help	Show this message and exit.'
     log.info '    --file	File containing the paths to the alignment files. The format of the file will be:'
-    log.info '              url'
-    log.info '				path/to/file.bam'
-    log.info '				The header is necessary.'
-    log.info '    --genome      File with genome as required by BEDTools.'
+    log.info '				path/to/file1.bam\n'
+    log.info '              path/to/file2.bam\n'
+    log.info '              ...'
+    log.info '				Note. Each bam file needs an index.'
+    log.info '    --genome      Absolute path for file with genome as required by BEDTools.'
+    log.info '                  The genome file spec is defined by BEDTools and has the following format:'
+    log.info '                   <seq_name><\t><chrom_size>'
     log.info '    --window      Number of bases for each of the BEDTools generated windows.'
     log.info '    --outprefix   Prefix for output file.'
     log.info ''
@@ -37,20 +40,24 @@ if (params.help) {
 
 log.info 'Starting the analysis.....'
 
+bamPaths = file(params.file)
+genomeFile = file(params.genome)
+
 process make_windows {
     /*
     Process to create genomic windows of a certain width (in bases)
     */
  
     memory '500 MB'
-    executor 'lsf'
-    cpus 1
+
+    input:
+    file genome from genomeFile
 
     output:
     stdout ivals_ch
  
     """
-    bedtools makewindows -g ${params.genome} -w ${params.window} |awk -F'\t' '{print \$1":"\$2"-"\$3}' -
+    bedtools makewindows -g $genome -w ${params.window} |awk -F'\\t' '{print \$1":"\$2"-"\$3}' -
     """
 }
 
@@ -63,23 +70,17 @@ process get_cov {
     */
 	tag "Depth for ival: $ival"
 	
-	memory { 20.GB * task.attempt }
-	executor 'lsf'
-    queue "${params.queue}"
-    cpus 1
-	maxForks 1000
-
-	errorStrategy 'retry' 
-    maxRetries 5
+	memory '500 MB'
 
 	input:
-		val ival from monoival_ch
+	val ival from monoival_ch
+    file url from bamPaths
 
 	output:
-		file("*.cov.gz") into cov_chunks
+	file("*.cov.gz") into cov_chunks
 
 	exec:
-	def match = (ival =~ /(chr.*):(\d+)-(\d+)/)
+	def match = (ival =~ /(.*):(\d+)-(\d+)/)
 	match.matches()
 	def chrom = match.group(1)
 	def start = match.group(2)
@@ -88,7 +89,7 @@ process get_cov {
 	
 	script:
 	"""
-    samtools depth -a -d 0 -r ${ival} -f ${params.file} |bgzip -c > ${chrom}.${nstart}.cov.gz
+    samtools depth -a -d 0 -r ${ival} -f $url |bgzip -c > ${chrom}.${nstart}.cov.gz
     """
 }
 
@@ -101,11 +102,7 @@ process merge_chunks {
 	This process will collect and merge each of the genomic
 	chunks generated above
 	*/
-
 	memory '500 MB'
-    executor 'lsf'
-    queue "${params.queue}"
-    cpus 1
 
 	input:
 		file(cov_f) from sorted_covchunks
@@ -127,9 +124,6 @@ process aggregate_depth {
 	publishDir "results", mode: 'copy', overwrite: true
 
 	memory '500 MB'
-    executor 'lsf'
-    queue "${params.queue}"
-    cpus 1
 
 	input:
         file(merged_file) from merged_file
@@ -141,5 +135,3 @@ process aggregate_depth {
 	sum_covs.py --ifile ${merged_file} --prefix out
 	"""
 }
-
-

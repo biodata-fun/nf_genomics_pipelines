@@ -1,3 +1,4 @@
+# This image installs BEDTools, Samtools, tabix, bgzip, python, wget, git, etc... 
 #parent image
 FROM ubuntu:latest
 
@@ -8,6 +9,7 @@ RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get -qq install git \
                     wget \
     				build-essential \
+					tabix \
 				    autoconf \
 				    zlib1g-dev \
 				    libbz2-dev \
@@ -34,3 +36,7 @@ RUN ./configure --without-curses && make && make install
 #cleaning
 WORKDIR /tmp/
 RUN rm -r samtools-1.11/ && rm samtools-1.11.tar.bz2
+
+# get accessory scripts
+RUN git clone https://github.com/biodata-fun/nf_genomics_pipelines.git
+RUN mv /tmp/nf_genomics_pipelines/scripts/sum_covs.py /bin/ && rm -r /tmp/nf_genomics_pipelines
