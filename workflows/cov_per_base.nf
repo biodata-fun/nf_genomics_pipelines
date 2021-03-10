@@ -3,6 +3,8 @@
  *
  * This workflow relies on Nextflow (see https://www.nextflow.io/tags/workflow.html)
  *
+ * More information on how to run 
+ *
  * @author
  * Ernesto Lowy <ernesto.lowy@gmail.com>
  *
