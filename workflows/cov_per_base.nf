@@ -3,7 +3,9 @@
  *
  * This workflow relies on Nextflow (see https://www.nextflow.io/tags/workflow.html)
  *
- * More information on how to run 
+ * More information on how to run the workflow can be found in:
+ *
+ * https://github.com/biodata-fun/nf_genomics_pipelines/wiki/cov_per_base.nf
  *
  * @author
  * Ernesto Lowy <ernesto.lowy@gmail.com>
