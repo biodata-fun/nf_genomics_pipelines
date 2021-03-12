@@ -7,7 +7,7 @@
  *
  * More information on how to run the workflow can be found in:
  *
- * https://github.com/biodata-fun/nf_genomics_pipelines/wiki/cov_per_base.nf
+ * https://github.com/biodata-fun/nf_genomics_pipelines/wiki/convert2bam.nf
  *
  * @author
  * Ernesto Lowy <ernesto.lowy@gmail.com>
