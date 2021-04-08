@@ -4,13 +4,16 @@
  *
  * This workflow relies on Nextflow (see https://www.nextflow.io/tags/workflow.html)
  *
+ *  More information on how to run the workflow can be found in:
+ *
+ *  https://github.com/biodata-fun/nf_genomics_pipelines/wiki/run_md5.nf
+ *
  * @author
  * Ernesto Lowy <ernesto.lowy@gmail.com>
  */
 
  // params defaults
 params.help = false
-params.queue = 'production-rh74'
 
 //print usage
 if (params.help) {
@@ -19,11 +22,13 @@ if (params.help) {
     log.info '-----------------------------------------'
     log.info ''
     log.info 'Usage: '
-    log.info '    nextflow run_md5.nf --list FILE'
+    log.info '    nextflow run_md5.nf --list FILE --cpus 1'
     log.info ''
     log.info 'Options:'
     log.info '	--help	Show this message and exit.'
     log.info '	--list FILE    File with the paths for the files being analysed.'
+    log.info '  --cpus INT     Number of cpus this workflow will use. The more CPUs '
+    log.info '                 the quicker the calculation will be done.'
     log.info ''
     exit 1
 }
@@ -31,6 +36,7 @@ if (params.help) {
 log.info 'Starting the analysis.....'
 
 listSeq=params.list
+cpus=params.cpus
 
 Channel.fromPath(listSeq)
         .splitCsv()
@@ -43,15 +49,8 @@ Channel.fromPath(listSeq)
 process md5_for_path {
     /*
     * Process to run 'md5sum' on each of the files
-
-    * Returns
-    * -------
-    * 
     */
-    memory '512 MB'
-    executor 'lsf'
-    queue "${params.queue}"
-    maxForks 20
+    maxForks cpus
 
     publishDir "result_md5", mode: 'move', overwrite: true
 

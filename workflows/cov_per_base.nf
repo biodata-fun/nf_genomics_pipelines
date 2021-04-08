@@ -69,9 +69,9 @@ ivals_ch.splitText().map{it -> it.trim()}.set{monoival_ch}
 
 process get_cov {
 	/*
-    Process to run SAMTools depth on params.pos_file and get a
+	Process to run SAMTools depth on params.pos_file and get a
 	pos file that will be used later
-    */
+	*/
 	tag "Depth for ival: $ival"
 	
 	memory '500 MB'
