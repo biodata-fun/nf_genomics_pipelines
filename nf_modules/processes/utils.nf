@@ -23,3 +23,26 @@ process SAVE_FILE {
     mv ${afile} ${prefix}.merged.bam
     """
 }
+
+process SAVE_VCF_FILE {
+    /*
+    This process will save a certain VCF
+    Returns
+    -------
+    Path to saved VCF
+    */
+    
+    publishDir "results/", mode: 'copy', overwrite: true
+
+    executor 'local'
+
+    input:
+	path vcf
+
+    output:
+    path "out.norm.vcf.gz"
+
+    """
+    ls $vcf
+    """
+}
