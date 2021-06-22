@@ -29,7 +29,7 @@ process SPLIT_MULTIALLELIC {
     path 'out.bcftoolsnorm.vcf.gz'
 
     """
-    bcftools norm -m -any $vcf -o out.bcftoolsnorm.vcf.gz -Oz --threads $threads
+    bcftools norm -m -any ${vcf} -o out.bcftoolsnorm.vcf.gz -Oz --threads ${threads}
     """
 }
 
@@ -49,7 +49,7 @@ process SELECT_VARIANTS {
     path "out.${vt}.vcf.gz"
 
     """
-    bcftools view $vcf -v $vt -o out.${vt}.vcf.gz -Oz --threads $threads
+    bcftools view $vcf -v ${vt} -o out.${vt}.vcf.gz -Oz --threads ${threads}
     """
 }
 
@@ -71,3 +71,90 @@ process RUN_BCFTOOLS_SORT {
 	bcftools sort -T tmpdir/ ${vcf} -o out.sort.vcf.gz -Oz
     """
 }
+
+process EXC_NON_VTS {
+    /*
+    This process will select the variants on a VCF
+
+    Returns
+    -------
+    Path to VCF containing only variants
+    */
+
+    executor 'local'
+
+    input:
+    path(vcf)
+    val(threads)
+
+    output:
+    file "out.onlyvariants.vcf.gz"
+
+    """
+    bcftools view -c1 ${vcf} -o out.onlyvariants.vcf.gz --threads ${threads} -Oz
+    """
+}
+
+process INTERSECTION_CALLSET {
+    /*
+    Process to find the intersection between a call set and the Gold
+    standard call set
+
+    Parameters
+    ----------
+    vcf : path to VCF file used for training
+    vt : type of variant ('snps','indels')
+    true_cs : path to gold standard call set
+    true_cs_ix : path to index for 'true_cs'
+
+    Output
+    ------
+    3 VCFs containing the False Positives in FP.vcf.gz, the False Negatives in FN.vcf.gz
+    and the True Positives in TP.vcf.gz
+    */
+
+    executor 'local'
+
+    input:
+    path(vcf)
+    val(vt)
+    path(true_cs)
+    path(true_cs_ix)
+
+    output:
+    file 'FP.vcf.gz'
+    file 'FN.vcf.gz'
+    file 'TP.vcf.gz'
+
+    """
+    tabix ${vcf}
+    bcftools isec -c ${vt}  -p 'dir/' ${vcf} ${true_cs}
+    bgzip -c dir/0000.vcf > FP.vcf.gz
+    bgzip -c dir/0001.vcf > FN.vcf.gz
+    bgzip -c dir/0002.vcf > TP.vcf.gz
+    """
+}
+
+process BCF_QUERY {
+    /*
+    Process to run 'bcftools query' on a VCF file
+
+    Output
+    ------
+    .tsv file compressed with gzip
+    */
+
+    executor 'local'
+
+    input:
+    path(vcf)
+    val(annotations)
+
+    output:
+    path('out.tsv.gz')
+
+    """
+    bcftools query -H -f '${annotations}' ${vcf} | bgzip -c > out.tsv.gz
+    """
+}
+
