@@ -17,13 +17,9 @@ process SPLIT_MULTIALLELIC {
     -------
     Path to splitted VCF
     */
-
-    executor 'local'
-
     input:
     path vcf
     val(threads)
-
 
     output:
     path 'out.bcftoolsnorm.vcf.gz'
@@ -37,9 +33,6 @@ process SELECT_VARIANTS {
     /*
     Process to select the desired variants type (snps/indels)
     */
-
-    executor 'local'
-
     input:
     path(vcf)
     val(vt)
@@ -57,9 +50,6 @@ process RUN_BCFTOOLS_SORT {
     /*
     Process to run bcftools sort
     */
-
-    executor 'local'
-
     input:
     path(vcf)
 
@@ -80,9 +70,6 @@ process EXC_NON_VTS {
     -------
     Path to VCF containing only variants
     */
-
-    executor 'local'
-
     input:
     path(vcf)
     val(threads)
@@ -112,9 +99,6 @@ process INTERSECTION_CALLSET {
     3 VCFs containing the False Positives in FP.vcf.gz, the False Negatives in FN.vcf.gz
     and the True Positives in TP.vcf.gz
     */
-
-    executor 'local'
-
     input:
     path(vcf)
     val(vt)
@@ -122,9 +106,9 @@ process INTERSECTION_CALLSET {
     path(true_cs_ix)
 
     output:
-    file 'FP.vcf.gz'
-    file 'FN.vcf.gz'
-    file 'TP.vcf.gz'
+    path 'FP.vcf.gz', emit: fp_vcf
+    path 'FN.vcf.gz', emit: fn_vcf 
+    path 'TP.vcf.gz', emit: tp_vcf
 
     """
     tabix ${vcf}
@@ -135,17 +119,15 @@ process INTERSECTION_CALLSET {
     """
 }
 
-process BCF_QUERY {
+process BCFT_QUERY {
     /*
     Process to run 'bcftools query' on a VCF file
 
     Output
     ------
-    .tsv file compressed with gzip
+    .tsv file compressed with gzip containing the annotations
+    that have been 
     */
-
-    executor 'local'
-
     input:
     path(vcf)
     val(annotations)

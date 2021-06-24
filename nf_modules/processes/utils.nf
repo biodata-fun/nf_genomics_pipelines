@@ -1,48 +1,28 @@
 process SAVE_FILE {
     /*
-    This process will split the multiallelic variants by using BCFTools
+    This process is of general utility and used to save a file
+    in a directory
 
-    Returns
-    -------
-    Path to splitted VCF
+    Parameters
+    ----------
+    file : path to file to save
+    dirname : name of directory used to save 'file'
+    prefix : output name for saved file
+    mode : mode used to save the file: ['move','copy']
     */
     
-    publishDir "results/", mode: 'move', overwrite: true
-
-    executor 'local'
+    publishDir "${dirname}", mode: "${mode}", overwrite: true
 
     input:
 	path(afile)
+    val(dirname)
     val(prefix)
+    val(mode)
 
     output:
-    path "${prefix}.merged.bam"
+    path "${prefix}"
 
     """
-    echo $afile $prefix
-    mv ${afile} ${prefix}.merged.bam
-    """
-}
-
-process SAVE_VCF_FILE {
-    /*
-    This process will save a certain VCF
-    Returns
-    -------
-    Path to saved VCF
-    */
-    
-    publishDir "results/", mode: 'copy', overwrite: true
-
-    executor 'local'
-
-    input:
-	path vcf
-
-    output:
-    path "out.norm.vcf.gz"
-
-    """
-    ls $vcf
+    mv ${afile} ${prefix}
     """
 }

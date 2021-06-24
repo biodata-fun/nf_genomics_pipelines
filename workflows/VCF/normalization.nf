@@ -12,7 +12,7 @@ nextflow.enable.dsl=2
 
 include { ALLELIC_PRIMITIVES; RUN_VT_UNIQ } from '../../nf_modules/processes/normalization.nf'
 include { SPLIT_MULTIALLELIC; SELECT_VARIANTS; RUN_BCFTOOLS_SORT;  } from '../../nf_modules/processes/bcftools.nf'
-include { SAVE_VCF_FILE } from '../../nf_modules/processes/utils.nf'
+include { SAVE_FILE } from '../../nf_modules/processes/utils.nf'
 
 // params defaults
 params.help = false
@@ -26,14 +26,14 @@ if (params.help) {
     log.info '--------------------------------'
     log.info ''
     log.info 'Usage: '
-    log.info '    nextflow normalization.nf --vcf VCF --vt snps --threads 5 --outprefix out'
+    log.info '    nextflow normalization.nf --vcf VCF --vt snps --outdir results --outprefix out'
     log.info ''
     log.info 'Options:'
     log.info '	--help	Show this message and exit.'
     log.info '	--vcf VCF    Path to the VCF file that will be normalized.'
     log.info '  --vt  VARIANT_TYPE   Type of variant that will be normalized. Poss1ible values are 'snps'/'indels'/'both'.'
-    log.info '  --threads INT Number of threads used in the different BCFTools processes. Default=1.'
-    log.info '  --outdir OUTDIR Name for directory for saving the normalized output VCF.'
+    log.info '  --outdir OUTDIR   Name for directory for saving the normalized output VCF. Default: results/'
+    log.info '  --outprefix OUTPREFIX Output filename.'
     log.info ''
     exit 1
 }
@@ -48,6 +48,8 @@ if( !vcfFile.exists() ) {
 
 if( !(params.vt in ['snps','indels'])) { exit 1, "Invalid variant type: '${params.vt}'" }
 
+if(!params.outprefix)
+{ exit 1, "You need to provide the --outprefix parameter" }
 
 workflow  {
     main:
@@ -56,6 +58,6 @@ workflow  {
         SELECT_VARIANTS(ALLELIC_PRIMITIVES.out, params.vt, params.threads)
         RUN_BCFTOOLS_SORT(SELECT_VARIANTS.out)
         RUN_VT_UNIQ(RUN_BCFTOOLS_SORT.out)
-        SAVE_VCF_FILE(RUN_VT_UNIQ.out)
+        SAVE_FILE(RUN_VT_UNIQ.out, params.outdir, params.outprefix,'move')
 }
 
