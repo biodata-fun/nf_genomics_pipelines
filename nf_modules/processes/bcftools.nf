@@ -133,10 +133,10 @@ process BCFT_QUERY {
     val(annotations)
 
     output:
-    path('out.tsv.gz')
+    path("${vcf.baseName}.tsv.gz")
 
     """
-    bcftools query -H -f '${annotations}' ${vcf} | bgzip -c > out.tsv.gz
+    bcftools query -H -f '${annotations}' ${vcf} | bgzip -c > ${vcf.baseName}.tsv.gz
     """
 }
 
