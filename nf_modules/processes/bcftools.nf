@@ -29,6 +29,50 @@ process SPLIT_MULTIALLELIC {
     """
 }
 
+process GET_HEADER {
+    /*
+    Process is used to get the header from a VCF file
+
+    Returns
+    -------
+    Path to a text file with a header
+    */
+    input:
+    path vcf
+
+    output:
+    path 'header.txt'
+
+    """
+    bcftools view -h ${vcf} > header.txt
+    """
+}
+
+process REHEADER {
+    /*
+    Process to replace the header of a VCF file
+
+    Parameters
+    ----------
+    header.txt : file with header
+    vcf : vcf that will be altered
+
+    Output
+    ------
+    gzipped file
+    */
+    input:
+    path(header)
+    path(vcf)
+
+    output:
+    path 'reheaded.vcf.gz'
+
+    """
+    bcftools reheader -h ${header} -o 'reheaded.vcf.gz' ${vcf}
+    """
+}
+
 process SELECT_VARIANTS {
     /*
     Process to select the desired variants type (snps/indels)
@@ -140,3 +184,28 @@ process BCFT_QUERY {
     """
 }
 
+process SELECT_REGION {
+    /*
+    Process to fetch a certain region from the VCF using 'bcftools view'
+
+    Parameters
+    ----------
+    vcf : path to VCF file
+    region : region to fetch. For example: chr20
+
+    Output
+    ------
+    gzipped VCF file with a particular region
+    */
+    input:
+    path(vcf)
+    val(region)
+
+    output:
+    path("sub.${region}.vcf.gz")
+
+    """
+    bcftools view -r ${region} ${params.vcf} -o sub.${region}.vcf.gz -Oz
+    """
+
+}
