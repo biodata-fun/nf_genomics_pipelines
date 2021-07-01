@@ -26,3 +26,27 @@ process SAVE_FILE {
     mv ${afile} ${prefix}
     """
 }
+
+process RUN_TABIX {
+    /*
+    Run tabix to index a file
+
+    Parameters
+    ----------
+    file : path to the file to be indexed
+
+    Output
+    ------
+    tabix_index : path to tabix index
+    */
+
+    input:
+    path(afile)
+
+    output:
+    path "${afile}.tbi"
+
+    """
+    tabix ${afile}
+    """
+}

@@ -191,6 +191,7 @@ process SELECT_REGION {
     Parameters
     ----------
     vcf : path to VCF file
+    vcf_ix : path to tabix index for this VCF file
     region : region to fetch. For example: chr20
 
     Output
@@ -199,13 +200,39 @@ process SELECT_REGION {
     */
     input:
     path(vcf)
+    path(vcf_ix)
     val(region)
 
     output:
     path("sub.${region}.vcf.gz")
 
     """
-    bcftools view -r ${region} ${params.vcf} -o sub.${region}.vcf.gz -Oz
+    bcftools view -r ${region} ${vcf} -o sub.${region}.vcf.gz -Oz
     """
+}
 
+process DROP_GTPS {
+    /*
+    Process to drop the genotype information from a VCF
+
+    Parameters
+    ----------
+    vcf : path to the VCF file
+    vt : select/exclude comma-separated list of variant types: snps,indels,mnps,ref,bnd,other
+
+    Output
+    ------
+    gzipped VCF file without genotypes
+    */
+    input:
+    path(vcf)
+    val(vt)
+    val(threads)
+
+    output:
+    path("out.${vt}.noGTPS.vcf.gz")
+
+    """
+    bcftools view -G -v ${vt} ${vcf} -o out.${vt}.noGTPS.vcf.gz -Oz --threads ${threads}
+    """
 }
