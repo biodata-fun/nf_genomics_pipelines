@@ -93,16 +93,22 @@ process SELECT_VARIANTS {
 process RUN_BCFTOOLS_SORT {
     /*
     Process to run bcftools sort
+
+    Parameters
+    ----------
+    vcf : vcf file to be sorted
+    tmpdir : tmp dir keep the 'bcftools sort' intermediate files
     */
     input:
     path(vcf)
+    val(tmpdir)
 
     output:
     path "out.sort.vcf.gz"
 
     """
 	mkdir tmpdir
-	bcftools sort -T tmpdir/ ${vcf} -o out.sort.vcf.gz -Oz
+	bcftools sort -T ${tmpdir} ${vcf} -o out.sort.vcf.gz -Oz
     """
 }
 
@@ -234,5 +240,36 @@ process DROP_GTPS {
 
     """
     bcftools view -G -v ${vt} ${vcf} -o out.${vt}.noGTPS.vcf.gz -Oz --threads ${threads}
+    """
+}
+
+process BCFT_ANNOTATE {
+    /*
+    Process to run 'bcftools annotate' on a VCF file
+
+    Parameters
+    ----------
+    vcf : vcf file that will be reannotated
+    tsv_f : tsv file with new annotations
+    tsv_f_ix : tabix index for tsv_f
+    columns : list of columns to use
+    threads : Number of cpus to use
+
+    Output
+    ------
+    vcf.gz : Reannotated vcf file 
+    */
+    input:
+    path(vcf)
+    path(tsv_f)
+    path(tsv_f_ix)
+    val(columns)
+    val(threads)
+
+    output:
+    path("reannotated.vcf.gz")
+
+    """
+    bcftools annotate -a ${tsv_f} ${vcf} -c ${columns} -o reannotated.vcf.gz --threads ${threads} -Oz
     """
 }
