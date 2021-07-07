@@ -37,6 +37,8 @@ process GET_HEADER {
     -------
     Path to a text file with a header
     */
+    executor 'local'
+
     input:
     path vcf
 
@@ -61,6 +63,8 @@ process REHEADER {
     ------
     gzipped file
     */
+    executor 'local'
+
     input:
     path(header)
     path(vcf)
@@ -76,6 +80,12 @@ process REHEADER {
 process SELECT_VARIANTS {
     /*
     Process to select the desired variants type (snps/indels)
+
+    Parameters
+    ----------
+    vcf : input vcf
+    vt : type of variant to select
+    threads : Number of cpus to use
     */
     input:
     path(vcf)
@@ -107,7 +117,7 @@ process RUN_BCFTOOLS_SORT {
     path "out.sort.vcf.gz"
 
     """
-	mkdir tmpdir
+	mkdir -p ${tmpdir}
 	bcftools sort -T ${tmpdir} ${vcf} -o out.sort.vcf.gz -Oz
     """
 }
@@ -116,7 +126,12 @@ process EXC_NON_VTS {
     /*
     This process will select the variants on a VCF
 
-    Returns
+    Parameters
+    ----------
+    vcf : input vcf
+    threads : Number of cpus to use
+
+    Output
     -------
     Path to VCF containing only variants
     */
@@ -173,6 +188,11 @@ process BCFT_QUERY {
     /*
     Process to run 'bcftools query' on a VCF file
 
+    Parameters
+    ----------
+    vcf : input vcf
+    annotations : string with annotations to query
+
     Output
     ------
     .tsv file compressed with gzip containing the annotations
@@ -199,6 +219,7 @@ process SELECT_REGION {
     vcf : path to VCF file
     vcf_ix : path to tabix index for this VCF file
     region : region to fetch. For example: chr20
+    threads : Number of cpus to use
 
     Output
     ------
@@ -208,23 +229,24 @@ process SELECT_REGION {
     path(vcf)
     path(vcf_ix)
     val(region)
+    val(threads)
 
     output:
     path("sub.${region}.vcf.gz")
 
     """
-    bcftools view -r ${region} ${vcf} -o sub.${region}.vcf.gz -Oz
+    bcftools view -r ${region} ${vcf} -o sub.${region}.vcf.gz ${threads} -Oz
     """
 }
 
 process DROP_GTPS {
     /*
     Process to drop the genotype information from a VCF
-
     Parameters
     ----------
     vcf : path to the VCF file
     vt : select/exclude comma-separated list of variant types: snps,indels,mnps,ref,bnd,other
+    threads : Number of cpus to use
 
     Output
     ------

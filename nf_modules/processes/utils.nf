@@ -10,7 +10,6 @@ process SAVE_FILE {
     prefix : output name for saved file
     mode : mode used to save the file: ['move','copy']
     */
-    
     publishDir "${dirname}", mode: "${mode}", overwrite: true
 
     input:
@@ -39,7 +38,6 @@ process RUN_TABIX {
     ------
     tabix_index : path to tabix index
     */
-
     input:
     path(afile)
 

@@ -16,9 +16,6 @@ process ALLELIC_PRIMITIVES {
         -------
         Path to decomposed VCF
         */
-
-        executor 'local'
-
         input:
 	path vcf
 
@@ -27,7 +24,7 @@ process ALLELIC_PRIMITIVES {
 
         """
         tabix -f $vcf
-        vcfallelicprimitives -k -g $vcf |bgzip -c > out.decomp.vcf.gz
+        vcflib vcfallelicprimitives -k -g $vcf |bgzip -c > out.decomp.vcf.gz
         """
 }
 
@@ -35,9 +32,6 @@ process RUN_VT_UNIQ {
         /*
         Process to run vt uniq
         */
-
-        executor 'local'
-
         input:
         path vcf
 
