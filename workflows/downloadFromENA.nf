@@ -30,7 +30,7 @@ if (params.help) {
     log.info '	--file FILE  File with the urls pointing to the files to be downloaded.'
     log.info '    This file needs to have the following format:'
     log.info '    url,dest'
-    log.info '    era-fasp@fasp.sra.ebi.ac.uk:/vol1/ERZ454/ERZ454001/ERR1457180.cram,/nfs/production/reseq-info/work/ernesto/isgr/SCRATCH/31_01_2019/ERR1457180.cram'
+    log.info '    /vol1/ERZ454/ERZ454001/ERR1457180.cram,/target/dir/ERR1457180.cram'
     log.info '  --wget true|false  If true, then the file will be downloaded using wget'
     log.info '  --ascp  true|false  If true, then the file will be downloaded using aspera'
     log.info ''
