@@ -1,8 +1,9 @@
 #!/usr/bin/env nextflow
 
 /* 
- * Workflow to download a file from the European Nucleotide Archive (ENA). It will also calculate the MD5s on the
- * downloaded files (this step is optional).
+ * Workflow to download a file from the European Nucleotide Archive (ENA). It will also calculate the MD5sum values on the
+ * downloaded files. This tool uses two different programs for accessing and downloading the files: wget or ascp (the Aspera command line tool).
+ * ascp is generally faster but the choice depends on the user.
  *
  * This workflow relies on Nextflow (see https://www.nextflow.io/tags/workflow.html)
  *
