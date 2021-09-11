@@ -1,8 +1,7 @@
 #!/usr/bin/env nextflow
 
 /* 
- * Script for splitting a VCF containing multiple chromosomes into 1 VCF per chromosome.
- * It will only consider the biallelic sites
+ * Script to split a multi-chromosome VCF into single-chromosome VCFs
  *
  * @author
  * Ernesto Lowy <ernesto.lowy@gmail.com>
@@ -28,8 +27,8 @@ if (params.help) {
     log.info '  --help  Show this message and exit.'
     log.info '  --vcf VCF	VCF that will be splited.'
     log.info '	--prefix PREFIX		  String used for output files. Default: out'
-    log.info '  --outdir DIRNAME          Namd of output dir.'
-    log.info '  --chros LIST_OF_CHROS	  List of single chromosome-VCFs to generate.'
+    log.info '  --outdir DIRNAME          Name of output dir. Default: outdir'
+    log.info '  --chros LIST_OF_CHROS	  Comma-separated list of chromosomes to generate. i.e. chr1,chr2,...'
     log.info '  --cpus INT	  Number of CPUs to use. Default 1.'
     log.info ''
     exit 1
