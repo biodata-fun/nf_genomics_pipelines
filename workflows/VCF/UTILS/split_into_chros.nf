@@ -13,7 +13,7 @@
 params.help = false
 params.prefix = "out"
 params.outdir = "outdir"
-params.cpus = 2
+params.cpus = 1
 
 //print usage
 if (params.help) {
@@ -60,18 +60,20 @@ process splitVCF {
 		1) A VCF format file for each splitted chromosome
 		2) A tabix index for that VCF
 	*/
-    maxForks = "${params.cpus}"
-
-	publishDir "${params.outdir}", mode: 'move'
+	
+  maxForks = "${params.cpus}"
+ 	publishDir params.outdir, mode:'move'
 
 	input:
 	val chr from chr_list
+	path vcf from params.vcf
 
 	output:
-	file "${params.prefix}.${chr}.vcf.gz*" into chr_vcf
+	path("${params.prefix}.${chr}.vcf.gz*")
 
 	"""
-	bcftools view -r ${chr} ${params.vcf} -o ${params.prefix}.${chr}.vcf.gz -O z
-	tabix ${params.prefix}.${chr}.vcf.gz
+	bcftools index -t ${vcf}
+	bcftools view -r ${chr} ${vcf} -o ${params.prefix}.${chr}.vcf.gz -O z
+	bcftools index -t ${params.prefix}.${chr}.vcf.gz
 	"""
 }
