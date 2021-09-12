@@ -1,7 +1,7 @@
 FROM alpine:3.14
 
 LABEL maintainer="ernestolowy@gmail.com"
-LABEL description="Dockerfile used to build an image containing the dependencies used in the normalization.nf nextflow workflow: BCFTools" 
+LABEL description="Dockerfile used to build BCFTools" 
 
 RUN apk add --no-cache git build-base zlib-dev bzip2-dev xz-dev curl-dev
 
